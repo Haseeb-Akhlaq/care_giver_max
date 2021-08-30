@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1021601232395",
+    "project_id": "caregivermax-7c01e",
+    "storage_bucket": "caregivermax-7c01e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021601232395:android:e1cb630fb29f24eb2ab90e",
+        "android_client_info": {
+          "package_name": "com.caregiver_max"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1021601232395-a3c5a1uhgf50rd8mo0ed98iqm7b2rsmc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT5DLE-KIMAQvdMM81DXI8OL0LI5FcTxs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1021601232395-a3c5a1uhgf50rd8mo0ed98iqm7b2rsmc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
