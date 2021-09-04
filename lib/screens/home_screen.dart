@@ -1,8 +1,13 @@
-import 'package:caregiver_max/screens/setup_adl_screen.dart';
+import 'package:caregiver_max/screens/Resident/Resident%20Actions/ADL%20Record/setup_adl_screen.dart';
 import 'package:caregiver_max/styles/colors.dart';
 import 'package:caregiver_max/widgets/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'Resident/Resident Actions/Activity/activity_screen.dart';
+import 'Resident/Resident Actions/DoctorsOrder/doctors_order_categagory_screen.dart';
+import 'Resident/Resident Actions/Medication/medication_action_category_screen.dart';
+import 'Resident/Resident Actions/ServieCare/service_care_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -84,10 +89,58 @@ class _HomeScreenState extends State<HomeScreen> {
                                       builder: (context) => SetupAdlScreen()));
                             },
                           ),
-                          DialogEntries(text: 'Medication'),
-                          DialogEntries(text: 'Doctor\'s order'),
-                          DialogEntries(text: 'Activity'),
-                          DialogEntries(text: 'Service Care'),
+                          DialogEntries(
+                            text: 'ADL Record',
+                            onpressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SetupAdlScreen()));
+                            },
+                          ),
+                          DialogEntries(
+                            text: 'Medication',
+                            onpressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          MedicationActionCategoryScreen()));
+                            },
+                          ),
+                          DialogEntries(
+                            text: 'Doctor\'s order',
+                            onpressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DoctorsOrderActionCategoryScreen()));
+                            },
+                          ),
+                          DialogEntries(
+                            text: 'Activity',
+                            onpressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ActivityActionScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          DialogEntries(
+                            text: 'Service Care',
+                            onpressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ServiceCareActionScreen(),
+                                ),
+                              );
+                            },
+                          ),
                           DialogEntries(text: 'Comp Assessment'),
                         ],
                       ),

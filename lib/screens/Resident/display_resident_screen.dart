@@ -1,10 +1,14 @@
-import 'package:caregiver_max/Models/resident.dart';
+import 'package:caregiver_max/Models/Resident/resident.dart';
 import 'package:caregiver_max/styles/colors.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 
 import '../home_screen.dart';
-import '../setup_adl_screen.dart';
+import 'Resident Actions/ADL Record/setup_adl_screen.dart';
+import 'Resident Actions/Activity/activity_screen.dart';
+import 'Resident Actions/DoctorsOrder/doctors_order_categagory_screen.dart';
+import 'Resident Actions/Medication/medication_action_category_screen.dart';
+import 'Resident Actions/ServieCare/service_care_screen.dart';
 import 'ResidentDetails/resident_details_categary_screen.dart';
 
 class DisplayResidentsScreen extends StatefulWidget {
@@ -238,10 +242,50 @@ class ResidentCard extends StatelessWidget {
                                                   SetupAdlScreen()));
                                     },
                                   ),
-                                  DialogEntries(text: 'Medication'),
-                                  DialogEntries(text: 'Doctor\'s order'),
-                                  DialogEntries(text: 'Activity'),
-                                  DialogEntries(text: 'Service Care'),
+                                  DialogEntries(
+                                    text: 'Medication',
+                                    onpressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MedicationActionCategoryScreen()));
+                                    },
+                                  ),
+                                  DialogEntries(
+                                    text: 'Doctor\'s order',
+                                    onpressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DoctorsOrderActionCategoryScreen()));
+                                    },
+                                  ),
+                                  DialogEntries(
+                                    text: 'Activity',
+                                    onpressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ActivityActionScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  DialogEntries(
+                                    text: 'Service Care',
+                                    onpressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ServiceCareActionScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                   DialogEntries(text: 'Comp Assessment'),
                                 ],
                               ),
@@ -255,13 +299,13 @@ class ResidentCard extends StatelessWidget {
                   Expanded(
                     child: AppButton(
                       title: 'Details',
-                        onTap: (){
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ResidentDetailsCategoryScreen()));
-                        },
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ResidentDetailsCategoryScreen()));
+                      },
                     ),
                   )
                 ],
