@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:caregiver_max/screens/Property/property_category_screen.dart';
 import 'package:caregiver_max/screens/Resident/resident_categary_screen.dart';
+import 'package:caregiver_max/screens/User/user_category_screen.dart';
 import 'package:caregiver_max/screens/home_screen.dart';
 import 'package:caregiver_max/screens/landing_screen.dart';
 import 'package:caregiver_max/styles/colors.dart';
@@ -199,7 +200,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       leading: FittedBox(
                         fit: BoxFit.cover,
                         child: Icon(
-                          Icons.person_outline,
+                          Icons.people,
                           color: AppColors.background,
                           size: 26,
                         ),
@@ -212,6 +213,29 @@ class _AppDrawerState extends State<AppDrawer> {
                       onTap: () {
                         Route route = MaterialPageRoute(
                           builder: (context) => ResidentCategoryScreen(),
+                        );
+                        Navigator.pop(context);
+                        Navigator.push(context, route);
+                      },
+                    ),
+                    CustomHorizontalDivider(thickness: 2),
+                    ListTile(
+                      leading: FittedBox(
+                        fit: BoxFit.cover,
+                        child: Icon(
+                          Icons.person,
+                          color: AppColors.background,
+                          size: 26,
+                        ),
+                      ),
+                      title: AutoSizeText(
+                        'User',
+                        style: TextStyle(fontSize: 18),
+                        maxLines: 1,
+                      ),
+                      onTap: () {
+                        Route route = MaterialPageRoute(
+                          builder: (context) => UserCategoryScreen(),
                         );
                         Navigator.pop(context);
                         Navigator.push(context, route);
