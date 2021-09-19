@@ -1,4 +1,6 @@
-import 'package:caregiver_max/Models/user.dart';
+import 'package:caregiver_max/screens/User/Model/care_giver_user.dart';
+import 'package:caregiver_max/screens/User/widgets/care_giver_user_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class DisplayUserScreen extends StatefulWidget {
@@ -9,28 +11,43 @@ class DisplayUserScreen extends StatefulWidget {
 }
 
 class _DisplayUserScreenState extends State<DisplayUserScreen> {
-  List<CareGiverUser> dummyUsers = [
-    CareGiverUser(
-      id: '0004',
-      email: 'jailynedee98@gmail.com',
-      name: 'JaiLyne Daniels',
-      cellPhone: '0304022',
-      homePhone: '323223',
-      workPhone: '',
-      role: 'Care Giver',
-      initial: 'JLD',
-    ),
-    CareGiverUser(
-      id: '0004',
-      email: '',
-      name: 'Numoipre Ola-Keji',
-      cellPhone: '',
-      homePhone: '',
-      workPhone: '',
-      role: 'Care Giver',
-      initial: 'no',
-    ),
-  ];
+  List<CareGiverUser> careGiverUsers = [];
+  bool isLoading = false;
+
+  getAllUsers() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final allUsers =
+        await FirebaseFirestore.instance.collection('careGiverUsers').get();
+
+    if (allUsers.docs.length == 0) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+    allUsers.docs.forEach((element) {
+      print(element.data());
+      careGiverUsers.add(CareGiverUser.fromMap(element.data()));
+    });
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  reset() {
+    careGiverUsers = [];
+    getAllUsers();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAllUsers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,156 +57,105 @@ class _DisplayUserScreenState extends State<DisplayUserScreen> {
         title: Text('All Users'),
         backgroundColor: Color(0xff788B91),
         centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-        child: ListView.separated(
-            itemBuilder: (context, index) {
-              return UserCard(
-                careGiverUser: dummyUsers[index],
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.search,
+              size: 30,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: SearchCareGiverUsers(
+                    careGiverUsers: careGiverUsers, reset: reset),
               );
             },
-            separatorBuilder: (context, index) {
-              return SizedBox(height: 10);
-            },
-            itemCount: dummyUsers.length),
+          ),
+        ],
       ),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    return CareGiverUserCard(
+                      careGiverUser: careGiverUsers[index],
+                      reset: reset,
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return SizedBox(height: 10);
+                  },
+                  itemCount: careGiverUsers.length),
+            ),
     );
   }
 }
 
-class UserCard extends StatelessWidget {
-  final CareGiverUser? careGiverUser;
+class SearchCareGiverUsers extends SearchDelegate<String> {
+  final List<CareGiverUser>? careGiverUsers;
+  final Function? reset;
 
-  const UserCard({this.careGiverUser});
+  SearchCareGiverUsers({this.careGiverUsers, this.reset});
+
+  List<CareGiverUser>? searchResults(String query) {
+    if (query.isEmpty) {
+      return careGiverUsers;
+    }
+
+    return careGiverUsers!
+        .where((element) => element.firstName!.contains(query))
+        .toList();
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Container(
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Name :  ',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Expanded(
-                    child: Text(
-                      careGiverUser!.name!,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 15),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Email :  ',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Expanded(
-                    child: Text(
-                      careGiverUser!.email!,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 15),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Initial :  ',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Expanded(
-                    child: Text(
-                      careGiverUser!.initial!,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 15),
-              Text(
-                'Phone :  ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 5),
-              Container(
-                margin: EdgeInsets.only(left: 10),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'CellPhone      : ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(careGiverUser!.cellPhone!)
-                      ],
-                    ),
-                    SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Text(
-                          'HomePhone : ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(careGiverUser!.homePhone!)
-                      ],
-                    ),
-                    SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Text(
-                          'WorkPhone   : ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(careGiverUser!.workPhone!)
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Role :  ',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Expanded(
-                    child: Text(
-                      careGiverUser!.role!,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 25),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Icon(Icons.edit, color: Colors.blue),
-                  Icon(Icons.delete, color: Colors.red),
-                ],
-              )
-            ],
-          ),
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+          icon: Icon(Icons.clear),
+          onPressed: () {
+            query = '';
+          })
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+        icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation,
         ),
-      ),
+        onPressed: () {
+          close(context, '');
+        });
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List<CareGiverUser> results =
+        query.isEmpty ? careGiverUsers! : searchResults(query)!;
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: ListView.builder(
+          itemCount: results.length,
+          itemBuilder: (context, index) {
+            return CareGiverUserCard(
+              careGiverUser: results[index],
+              reset: reset,
+            );
+          }),
     );
   }
 }

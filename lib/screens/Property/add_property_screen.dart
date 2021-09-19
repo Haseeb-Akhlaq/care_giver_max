@@ -1,5 +1,8 @@
 import 'package:caregiver_max/widgets/app_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nanoid/async.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({Key? key}) : super(key: key);
@@ -14,6 +17,52 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   String? statusDropDown;
   String? businessName;
   String? state;
+
+  TextEditingController addressController = TextEditingController();
+  TextEditingController cityController = TextEditingController();
+  TextEditingController zipCodeController = TextEditingController();
+  TextEditingController contactNumberController = TextEditingController();
+  TextEditingController contactPersonController = TextEditingController();
+  TextEditingController propertyNameController = TextEditingController();
+
+  addNewProperty() async {
+    if (statusDropDown == null) {
+      Fluttertoast.showToast(msg: 'Please Select Property Status');
+      return;
+    }
+
+    if (businessName == null) {
+      Fluttertoast.showToast(msg: 'Please Select Business Name');
+      return;
+    }
+
+    if (propertyNameController.text.isEmpty) {
+      Fluttertoast.showToast(msg: 'Please Enter Property Name');
+      return;
+    }
+
+    if (state == null) {
+      Fluttertoast.showToast(msg: 'Please Select State');
+      return;
+    }
+
+    String id = await customAlphabet('1234567890', 4);
+
+    FirebaseFirestore.instance.collection('properties').doc(id).set({
+      'id': id,
+      'status': statusDropDown,
+      'businessName': businessName,
+      'propertyName': propertyNameController.text,
+      'address': addressController.text,
+      'city': cityController.text,
+      'state': state,
+      'zipCode': zipCodeController.text,
+      'contactNo': contactNumberController.text,
+      'contactPerson': contactPersonController.text,
+    });
+
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +84,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'Status',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
@@ -81,14 +131,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'Business Name',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
@@ -133,27 +184,27 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'Property Name',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                       child: TextFormField(
-                        decoration: InputDecoration(
+                        controller: propertyNameController,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(0),
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Name';
-                          }
-                          return null;
-                        },
+                        onChanged: (v) {},
                       ),
                     ),
                   ),
@@ -166,17 +217,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'Address',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
+                        controller: addressController,
                         decoration: InputDecoration(
                           border: InputBorder.none,
                         ),
@@ -200,17 +254,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'City',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
+                        controller: cityController,
                         decoration: InputDecoration(
                           border: InputBorder.none,
                         ),
@@ -233,14 +290,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'State',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
@@ -278,17 +336,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'Zip Code',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
+                        controller: zipCodeController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -312,17 +373,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'Contact No',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
+                        controller: contactNumberController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -346,17 +410,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     'Contact Person',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
+                        controller: contactPersonController,
                         keyboardType: TextInputType.name,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -377,7 +444,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               AppButton(
                 title: 'Add',
                 onTap: () {
-                  Navigator.pop(context);
+                  addNewProperty();
                 },
               ),
               SizedBox(height: 25),

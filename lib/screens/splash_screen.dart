@@ -1,8 +1,7 @@
 import 'dart:async';
 
+import 'package:caregiver_max/screens/landing_screen.dart';
 import 'package:flutter/material.dart';
-
-import 'landing_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

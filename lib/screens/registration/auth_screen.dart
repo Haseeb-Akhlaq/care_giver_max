@@ -46,16 +46,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 'assets/images/logo.PNG',
                 height: 350,
               ),
-              SizedBox(
-                height: 40,
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              GoogleButton(),
-              SizedBox(
-                height: 15,
-              ),
+
+              //GoogleButton(),
               if (Platform.isIOS) AppleButton(),
               SizedBox(
                 height: 40,

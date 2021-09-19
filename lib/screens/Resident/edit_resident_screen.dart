@@ -1,32 +1,29 @@
+import 'package:caregiver_max/Models/Resident/resident.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:nanoid/async.dart';
 
-class AddResidentScreen extends StatefulWidget {
-  const AddResidentScreen({Key? key}) : super(key: key);
+class EditResidentScreen extends StatefulWidget {
+  final Resident? resident;
+
+  const EditResidentScreen({this.resident});
 
   @override
-  State<AddResidentScreen> createState() => _AddResidentScreenState();
+  State<EditResidentScreen> createState() => _EditResidentScreenState();
 }
 
-class _AddResidentScreenState extends State<AddResidentScreen> {
+class _EditResidentScreenState extends State<EditResidentScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String? statusDropDown;
   String? propertyDropDownName;
-  String? state;
-
-  //
   String? admissionDate = '';
   String? dateOfBirth = '';
-
   String? admissionDateDisplay = '';
   String? dateOfBirthDisplay = '';
-
   TextEditingController nameController = TextEditingController();
   TextEditingController primaryLanguageController = TextEditingController();
   TextEditingController admissionFormController = TextEditingController();
@@ -49,7 +46,43 @@ class _AddResidentScreenState extends State<AddResidentScreen> {
   TextEditingController medicareController = TextEditingController();
   TextEditingController medicaidController = TextEditingController();
 
-  addResident() async {
+  setInitialParameters() {
+    statusDropDown = widget.resident!.status;
+    propertyDropDownName = widget.resident!.property;
+
+    admissionDate = widget.resident!.admissionDate;
+    dateOfBirth = widget.resident!.dateOfBirth;
+
+    admissionDateDisplay = DateFormat.yMd()
+        .format(DateTime.parse(widget.resident!.admissionDate!));
+
+    dateOfBirthDisplay =
+        DateFormat.yMd().format(DateTime.parse(widget.resident!.dateOfBirth!));
+
+    nameController.text = widget.resident!.residentName!;
+    primaryLanguageController.text = widget.resident!.primaryLanguage!;
+    admissionFormController.text = widget.resident!.admissionForm!;
+    occupationController.text = widget.resident!.occupation!;
+    placeOfBirthController.text = widget.resident!.placeOfBirth!;
+    addressController.text = widget.resident!.address!;
+    telephoneController.text = widget.resident!.telephone!;
+    raceController.text = widget.resident!.race!;
+    ageController.text = widget.resident!.age!;
+    sexController.text = widget.resident!.sex!;
+    martialStatusController.text = widget.resident!.martialStatus!;
+    heightController.text = widget.resident!.height!;
+    weightController.text = widget.resident!.weight!;
+    socialSecurityController.text = widget.resident!.socialSecurity!;
+    religionController.text = widget.resident!.religion!;
+    clergyManController.text = widget.resident!.clergyMan!;
+    churchSynagogueController.text = widget.resident!.churchSynagogue!;
+    telephoneReligionController.text = widget.resident!.telephoneChurch!;
+    addressReligionController.text = widget.resident!.addressChurch!;
+    medicareController.text = widget.resident!.medicare!;
+    medicaidController.text = widget.resident!.medicaid!;
+  }
+
+  updateResident() async {
     if (statusDropDown == null) {
       Fluttertoast.showToast(msg: 'Please Select Status');
       return;
@@ -65,10 +98,10 @@ class _AddResidentScreenState extends State<AddResidentScreen> {
       return;
     }
 
-    String id = await customAlphabet('1234567890', 10);
-
-    FirebaseFirestore.instance.collection('residents').doc(id).set({
-      'id': id,
+    FirebaseFirestore.instance
+        .collection('residents')
+        .doc(widget.resident!.id)
+        .update({
       'status': statusDropDown,
       'property': propertyDropDownName,
       'name': nameController.text,
@@ -97,6 +130,12 @@ class _AddResidentScreenState extends State<AddResidentScreen> {
     });
 
     Navigator.pop(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setInitialParameters();
   }
 
   @override
@@ -1117,9 +1156,9 @@ class _AddResidentScreenState extends State<AddResidentScreen> {
 
               SizedBox(height: 50),
               AppButton(
-                title: 'Add',
+                title: 'Update',
                 onTap: () {
-                  addResident();
+                  updateResident();
                 },
               ),
               SizedBox(height: 25),

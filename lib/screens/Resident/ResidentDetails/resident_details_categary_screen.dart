@@ -1,3 +1,4 @@
+import 'package:caregiver_max/Models/Resident/resident.dart';
 import 'package:caregiver_max/screens/Resident/ResidentDetails/PerosnalInformation/personal_information_details.dart';
 import 'package:caregiver_max/styles/colors.dart';
 import 'package:caregiver_max/widgets/drawer.dart';
@@ -11,7 +12,9 @@ import 'OtherContactsInfo/other_contact_info_screen.dart';
 import 'ResidentBillingInfo/resident_billing_info.dart';
 
 class ResidentDetailsCategoryScreen extends StatefulWidget {
-  const ResidentDetailsCategoryScreen({Key? key}) : super(key: key);
+  final Resident? resident;
+  const ResidentDetailsCategoryScreen({Key? key, this.resident})
+      : super(key: key);
 
   @override
   State<ResidentDetailsCategoryScreen> createState() =>
@@ -62,7 +65,8 @@ class _ResidentDetailsCategoryScreenState
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PersonalInformationDetails(),
+                        builder: (context) => PersonalInformationDetails(
+                            resident: widget.resident),
                       ),
                     );
                   },
@@ -78,7 +82,8 @@ class _ResidentDetailsCategoryScreenState
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => OtherContactInfoScreen(),
+                        builder: (context) =>
+                            OtherContactInfoScreen(resident: widget.resident),
                       ),
                     );
                   },
@@ -110,7 +115,8 @@ class _ResidentDetailsCategoryScreenState
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => HomeHealthOrHospiceScreen(),
+                        builder: (context) => HomeHealthOrHospiceScreen(
+                            resident: widget.resident),
                       ),
                     );
                   },
@@ -126,7 +132,8 @@ class _ResidentDetailsCategoryScreenState
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NearestRelativeGuardianScreen(),
+                        builder: (context) => NearestRelativeGuardianScreen(
+                            resident: widget.resident),
                       ),
                     );
                   },

@@ -1,11 +1,23 @@
-import 'package:caregiver_max/styles/colors.dart';
+import 'package:caregiver_max/Models/Resident/resident.dart';
+import 'package:caregiver_max/screens/Resident/ResidentDetails/PerosnalInformation/pharmacy_expansion_tile.dart';
+import 'package:caregiver_max/screens/Resident/ResidentDetails/PerosnalInformation/reiligous_expansion_tile.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
+import 'denist_expansion_tile.dart';
+import 'funeral_expansion_tile.dart';
+import 'hospital_expansion_tile.dart';
+import 'insurance_expantion_tile.dart';
+import 'physical_exam_tile.dart';
+import 'physician_expantion_tile.dart';
+
 class PersonalInformationDetails extends StatefulWidget {
-  const PersonalInformationDetails({Key? key}) : super(key: key);
+  final Resident? resident;
+  const PersonalInformationDetails({Key? key, this.resident}) : super(key: key);
 
   @override
   State<PersonalInformationDetails> createState() =>
@@ -18,11 +30,249 @@ class _PersonalInformationDetailsState
 
   String? statusDropDown;
   String? propertyDropDownName;
-  String? state;
 
   //
   String? admissionDate = '';
   String? dateOfBirth = '';
+
+  String? admissionDateDisplay = '';
+  String? dateOfBirthDisplay = '';
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController primaryLanguageController = TextEditingController();
+  TextEditingController admissionFormController = TextEditingController();
+  TextEditingController occupationController = TextEditingController();
+  TextEditingController placeOfBirthController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController telephoneController = TextEditingController();
+  TextEditingController raceController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
+  TextEditingController sexController = TextEditingController();
+  TextEditingController martialStatusController = TextEditingController();
+  TextEditingController heightController = TextEditingController();
+  TextEditingController weightController = TextEditingController();
+  TextEditingController socialSecurityController = TextEditingController();
+  TextEditingController medicareController = TextEditingController();
+  TextEditingController medicaidController = TextEditingController();
+
+  setInitialValues() {
+    statusDropDown = widget.resident!.status;
+    propertyDropDownName = widget.resident!.property;
+
+    admissionDate = widget.resident!.admissionDate;
+    admissionDateDisplay = DateFormat.yMd()
+        .format(DateTime.parse(widget.resident!.admissionDate!));
+
+    dateOfBirth = widget.resident!.dateOfBirth;
+    dateOfBirthDisplay =
+        DateFormat.yMd().format(DateTime.parse(widget.resident!.dateOfBirth!));
+
+    nameController.text = widget.resident!.residentName!;
+    primaryLanguageController.text = widget.resident!.primaryLanguage!;
+    admissionFormController.text = widget.resident!.admissionForm!;
+    occupationController.text = widget.resident!.occupation!;
+    placeOfBirthController.text = widget.resident!.placeOfBirth!;
+    addressController.text = widget.resident!.address!;
+    telephoneController.text = widget.resident!.telephone!;
+    raceController.text = widget.resident!.telephone!;
+    ageController.text = widget.resident!.age!;
+    sexController.text = widget.resident!.sex!;
+    martialStatusController.text = widget.resident!.martialStatus!;
+    heightController.text = widget.resident!.height!;
+    weightController.text = widget.resident!.weight!;
+    socialSecurityController.text = widget.resident!.socialSecurity!;
+    medicaidController.text = widget.resident!.medicaid!;
+    medicareController.text = widget.resident!.medicare!;
+  }
+
+  //////////////////////////SETTINGS EXPANSION TILES VALUES//////////////
+
+  //<-----------///////////Religion EXPANSION TILE//////////////----------->
+  String? religion = '';
+  String? clergyMan = '';
+  String? churchSynagogue = '';
+  String? telephoneChurch = '';
+  String? addressChurch = '';
+
+  setReligionTileValues(String rel, String clergy, String synagague,
+      String telephone, String address) {
+    religion = rel;
+    clergyMan = clergy;
+    churchSynagogue = synagague;
+    telephoneChurch = telephone;
+    addressChurch = address;
+  }
+
+  //<-----------///////////Religion EXPANSION TILE//////////////----------->
+
+  //<-----------///////////INSURANCE EXPANSION TILE//////////////----------->
+  String? insurance = '';
+  String? insurancePolicy = '';
+  String? insuranceGroup = '';
+  String? telephoneInsurance = '';
+  String? addressInsurance = '';
+  String? insuranceGroupNo = '';
+
+  setInsuranceTileValues(String insu, String policy, String group,
+      String telephone, String address, String groupNo) {
+    insurance = insu;
+    insurancePolicy = policy;
+    insuranceGroup = group;
+    telephoneInsurance = telephone;
+    addressInsurance = address;
+    insuranceGroupNo = groupNo;
+  }
+
+  //<-----------///////////INSURANCE EXPANSION TILE//////////////----------->
+
+  //<-----------///////////Hospital EXPANSION TILE//////////////----------->
+  String? hospitalPreference = '';
+  String? hospitalTelephone = '';
+  String? hospitalEmail = '';
+
+  setHospitalTileValues(String preference, String telephone, String email) {
+    hospitalPreference = preference;
+    hospitalTelephone = telephone;
+    hospitalEmail = email;
+
+    print(hospitalPreference);
+  }
+  //<-----------///////////Hospital EXPANSION TILE//////////////----------->
+
+  //<-----------///////////Funeral Tile//////////////----------->
+  String? funeralHomePreference = '';
+  String? funeralTelephone = '';
+
+  setFuneralTileValues(String preference, String telephone) {
+    funeralHomePreference = preference;
+    funeralTelephone = telephone;
+  }
+  //<-----------///////////Funeral Tile//////////////----------->
+
+  //<-----------///////////pharmacyTile//////////////----------->
+  String? pharmacyPreference = '';
+  String? pharmacyTelephone = '';
+
+  setPharmacyTileValues(String preference, String telephone) {
+    pharmacyPreference = preference;
+    pharmacyTelephone = telephone;
+  }
+  //<-----------///////////pharmacy Tile//////////////----------->
+
+  //<-----------///////////dentist Tile//////////////----------->
+  String? dentist = '';
+  String? dentistTelephone = '';
+
+  setDentistTileValues(String den, String telephone) {
+    dentist = den;
+    dentistTelephone = telephone;
+  }
+
+  //<-----------///////////dentist Tile//////////////----------->
+  //<-----------///////////physician Tile//////////////----------->
+  String? physician = '';
+  String? physicianAddress = '';
+  String? physicianTelephone = '';
+
+  setPhysicianTileValues(String name, String address, String telephone) {
+    physician = name;
+    physicianAddress = address;
+    physicianTelephone = telephone;
+  }
+
+  //<-----------////////// physician Tile//////////////----------->
+  //<-----------///////////Physical Exam Tile//////////////----------->
+  String? dateOfLastPhysicalExam = '';
+  String? physicalExamYearlyPhysicalDue = '';
+  String? physicalExamDiagnosis = '';
+  String? physicalExamAllergies = '';
+
+  setPhysicalExamTileValues(String lastPhysicalExam, String yearlyDue,
+      String diagnosis, String allergies) {
+    dateOfLastPhysicalExam = lastPhysicalExam;
+    physicalExamYearlyPhysicalDue = yearlyDue;
+    physicalExamDiagnosis = diagnosis;
+    physicalExamAllergies = allergies;
+  }
+  //<-----------////////// Physical Exam Tile//////////////----------->
+
+  updateResident() {
+    if (statusDropDown == null) {
+      Fluttertoast.showToast(msg: 'Please Select Status');
+      return;
+    }
+
+    if (propertyDropDownName == null) {
+      Fluttertoast.showToast(msg: 'Please Select Property');
+      return;
+    }
+
+    if (nameController.text.isEmpty) {
+      Fluttertoast.showToast(msg: 'Please Enter Resident Name');
+      return;
+    }
+
+    FirebaseFirestore.instance
+        .collection('residents')
+        .doc(widget.resident!.id)
+        .update({
+      'status': statusDropDown,
+      'property': propertyDropDownName,
+      'name': nameController.text,
+      'admissionDate': admissionDate,
+      'primaryLanguage': primaryLanguageController.text,
+      'admissionForm': admissionFormController.text,
+      'occupation': occupationController.text,
+      'placeOfBirth': placeOfBirthController.text,
+      'address': addressController.text,
+      'telephone': telephoneController.text,
+      'race': raceController.text,
+      'age': ageController.text,
+      'dateOfBirth': dateOfBirth,
+      'sex': sexController.text,
+      'martialStatus': martialStatusController.text,
+      'height': heightController.text,
+      'weight': weightController.text,
+      'socialSecurity': socialSecurityController.text,
+      'religion': religion,
+      'clergyman': clergyMan,
+      'churchSynagogue': churchSynagogue,
+      'telephoneChurch': telephoneChurch,
+      'addressChurch': addressChurch,
+      'medicare': medicareController.text,
+      'medicaid': medicaidController.text,
+      'insurance': insurance,
+      'insurancePolicy': insurancePolicy,
+      'insuranceGroup': insuranceGroup,
+      'insuranceTelephone': telephoneInsurance,
+      'insuranceAddress': addressInsurance,
+      'insuranceGroupNo': insuranceGroupNo,
+      'hospitalPreference': hospitalPreference,
+      'hospitalTelephone': hospitalTelephone,
+      'hospitalEmail': hospitalEmail,
+      'funeralHomePreference': funeralHomePreference,
+      'funeralTelephone': funeralTelephone,
+      'pharmacyPreference': pharmacyPreference,
+      'pharmacyTelephone': pharmacyTelephone,
+      'dentist': dentist,
+      'dentistTelephone': dentistTelephone,
+      'physician': physician,
+      'physicianAddress': physicianAddress,
+      'physicianTelephone': physicianTelephone,
+      'dateOfLastPhysicalExam': dateOfLastPhysicalExam,
+      'physicalExamYearlyPhysicalDue': physicalExamYearlyPhysicalDue,
+      'physicalExamDiagnosis': physicalExamDiagnosis,
+      'physicalExamAllergies': physicalExamAllergies,
+    });
+
+    Navigator.pop(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setInitialValues();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,20 +294,20 @@ class _PersonalInformationDetailsState
                   Text(
                     'Status',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(
-                            top: 10.0, bottom: 10.0, left: 20, right: 10),
+                        contentPadding: EdgeInsets.only(left: 20, right: 10),
                         focusColor: Theme.of(context).primaryColor,
                         hintText:
                             statusDropDown == null ? 'Status' : statusDropDown!,
@@ -73,6 +323,7 @@ class _PersonalInformationDetailsState
                         },
                       ).toList(),
                       onChanged: (val) {
+                        FocusScope.of(context).requestFocus(FocusNode());
                         setState(
                           () {
                             statusDropDown = val.toString();
@@ -91,20 +342,20 @@ class _PersonalInformationDetailsState
                   Text(
                     'Property',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(
-                            top: 10.0, bottom: 10.0, left: 20, right: 10),
+                        contentPadding: EdgeInsets.only(left: 20, right: 10),
                         focusColor: Theme.of(context).primaryColor,
                         hintText: propertyDropDownName == null
                             ? 'Property'
@@ -126,6 +377,7 @@ class _PersonalInformationDetailsState
                         },
                       ).toList(),
                       onChanged: (val) {
+                        FocusScope.of(context).requestFocus(FocusNode());
                         setState(
                           () {
                             propertyDropDownName = val.toString();
@@ -137,7 +389,7 @@ class _PersonalInformationDetailsState
                 ],
               ),
               ////////////////////////////////////////////Property
-              SizedBox(height: 25),
+              SizedBox(height: 20),
               ////////////////////////////////////////////Name
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,18 +397,23 @@ class _PersonalInformationDetailsState
                   Text(
                     'Name',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: nameController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -180,7 +437,8 @@ class _PersonalInformationDetailsState
                   Text(
                     'Admission Date',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
@@ -194,18 +452,20 @@ class _PersonalInformationDetailsState
                           lastDate: DateTime.now().add(Duration(days: 60)));
 
                       setState(() {
-                        admissionDate = DateFormat.yMd().format(date!);
+                        admissionDate = date.toString();
+                        admissionDateDisplay = DateFormat.yMd().format(date!);
                       });
                     },
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        child: Text('$admissionDate'),
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        child: Text('$admissionDateDisplay'),
                       ),
                     ),
                   ),
@@ -219,18 +479,23 @@ class _PersonalInformationDetailsState
                   Text(
                     'Primary Language',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: primaryLanguageController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -253,18 +518,21 @@ class _PersonalInformationDetailsState
                   Text(
                     'Admission Form',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -288,18 +556,23 @@ class _PersonalInformationDetailsState
                   Text(
                     'Occupation',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: occupationController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -323,18 +596,23 @@ class _PersonalInformationDetailsState
                   Text(
                     'Place of birth',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: placeOfBirthController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -357,18 +635,22 @@ class _PersonalInformationDetailsState
                   Text(
                     'Address',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
+                        controller: addressController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         maxLines: 3,
@@ -392,28 +674,26 @@ class _PersonalInformationDetailsState
                   Text(
                     'Telephone',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: telephoneController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Telephone Number';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -429,27 +709,25 @@ class _PersonalInformationDetailsState
                   Text(
                     'Race',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: raceController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Race Name';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -464,19 +742,24 @@ class _PersonalInformationDetailsState
                   Text(
                     'Age',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: ageController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -499,7 +782,8 @@ class _PersonalInformationDetailsState
                   Text(
                     'Date of Birth',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
@@ -512,18 +796,20 @@ class _PersonalInformationDetailsState
                           lastDate: DateTime(2030));
 
                       setState(() {
-                        dateOfBirth = DateFormat.yMd().format(date!);
+                        dateOfBirth = date.toString();
+                        dateOfBirthDisplay = DateFormat.yMd().format(date!);
                       });
                     },
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
                         padding:
                             EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        child: Text('$dateOfBirth'),
+                        child: Text('$dateOfBirthDisplay'),
                       ),
                     ),
                   ),
@@ -539,27 +825,25 @@ class _PersonalInformationDetailsState
                   Text(
                     'Sex',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: sexController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Sex Name';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -573,27 +857,25 @@ class _PersonalInformationDetailsState
                   Text(
                     'Martial Status',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: martialStatusController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Martial Status';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -608,19 +890,24 @@ class _PersonalInformationDetailsState
                   Text(
                     'Height',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: heightController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -644,19 +931,24 @@ class _PersonalInformationDetailsState
                   Text(
                     'Weight',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: weightController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -679,18 +971,23 @@ class _PersonalInformationDetailsState
                   Text(
                     'Social Security',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: socialSecurityController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -725,18 +1022,23 @@ class _PersonalInformationDetailsState
                   Text(
                     'Medicare',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: medicareController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
                         onSaved: (v) {},
@@ -759,1418 +1061,77 @@ class _PersonalInformationDetailsState
                   Text(
                     'Medicaid',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: medicaidController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Medicaid';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 25),
-              ReligiousExpansionTile(),
+              ReligiousExpansionTile(
+                resident: widget.resident,
+                setReligionTileValues: setReligionTileValues,
+              ),
               SizedBox(height: 25),
-              InsuranceExpansionTile(),
+              InsuranceExpansionTile(
+                  resident: widget.resident,
+                  setInsuranceTileValues: setInsuranceTileValues),
               SizedBox(height: 25),
-              HospitalExpansionTile(),
+              HospitalExpansionTile(
+                  resident: widget.resident,
+                  setHospitalTileValues: setHospitalTileValues),
               SizedBox(height: 25),
-              FuneralExpansionTile(),
+              FuneralExpansionTile(
+                resident: widget.resident,
+                setFuneralTileValues: setFuneralTileValues,
+              ),
               SizedBox(height: 25),
-              PharmacyExpansionTile(),
+              PharmacyExpansionTile(
+                  resident: widget.resident,
+                  setPharmacyTileValues: setPharmacyTileValues),
               SizedBox(height: 25),
-              DentistExpansionTile(),
+              DentistExpansionTile(
+                  resident: widget.resident,
+                  setDentistTileValues: setDentistTileValues),
               SizedBox(height: 25),
-              PhysicianExpansionTile(),
+              PhysicianExpansionTile(
+                resident: widget.resident,
+                setPhysicianTileValues: setPhysicianTileValues,
+              ),
               SizedBox(height: 25),
-              AlternatePhysicianExpansionTile(),
-              SizedBox(height: 25),
-              PhysicalExamExpansionTile(),
+              PhysicalExamExpansionTile(
+                resident: widget.resident,
+                setPhysicalExamTileValues: setPhysicalExamTileValues,
+              ),
               SizedBox(height: 50),
               AppButton(
                 title: 'Update',
                 onTap: () {
-                  Navigator.pop(context);
+                  updateResident();
                 },
               ),
               SizedBox(height: 25),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class ReligiousExpansionTile extends StatefulWidget {
-  const ReligiousExpansionTile({Key? key}) : super(key: key);
-
-  @override
-  _ReligiousExpansionTileState createState() => _ReligiousExpansionTileState();
-}
-
-class _ReligiousExpansionTileState extends State<ReligiousExpansionTile> {
-  TextEditingController religionController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Religious',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Religion
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Religion',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          controller: religionController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Religion Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Clergyman
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Clergyman',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Clergyman Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Church Synagogue
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Church Synagogue',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Church Synagogue Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Address
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Address',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class InsuranceExpansionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Insurance',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Insurance',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Insurance Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Policy',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Policy Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 25),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Group',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Group Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Address
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Address',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Group#',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Group Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class HospitalExpansionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Hospital',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hospital Preference',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Hospital Preference';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Email
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Email',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Email';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class FuneralExpansionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Funeral',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Funeral Home Preference',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Funeral Home Preference';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class PharmacyExpansionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Pharmacy',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Pharmacy Preference',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Hospital Preference';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class DentistExpansionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Dentist',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Dentist',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Dentist Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class PhysicianExpansionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Physician',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Physician
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Physician Name',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Physician Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Address
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Address',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class AlternatePhysicianExpansionTile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Alternate Physician',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Physician
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Physician Name',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Physician Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Address
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Address',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class PhysicalExamExpansionTile extends StatefulWidget {
-  @override
-  State<PhysicalExamExpansionTile> createState() =>
-      _PhysicalExamExpansionTileState();
-}
-
-class _PhysicalExamExpansionTileState extends State<PhysicalExamExpansionTile> {
-  String? dateOfLastPhysicalExam = '';
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Physical Exam',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Date of Last Physical Exam
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Date of Last Physical Exam',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: () async {
-                        final date = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime(2030));
-
-                        setState(() {
-                          dateOfLastPhysicalExam =
-                              DateFormat.yMd().format(date!);
-                        });
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 15),
-                          child: Text('$dateOfLastPhysicalExam'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                //////////////////////////////////////////// Yearly Physical Due
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Yearly Physical Due',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Yearly Physical Due';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Diagnosis
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Diagnosis',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Diagnosis';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Allergies
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Allergies',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Allergies';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          )
-        ],
       ),
     );
   }

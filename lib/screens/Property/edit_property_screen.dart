@@ -1,6 +1,8 @@
 import 'package:caregiver_max/Models/property.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EditPropertyScreen extends StatefulWidget {
   final Property? property;
@@ -19,6 +21,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   TextEditingController zipCodeController = TextEditingController();
   TextEditingController contactNumberController = TextEditingController();
   TextEditingController contactPersonController = TextEditingController();
+  TextEditingController propertyNameController = TextEditingController();
 
   String? statusDropDown;
   String? businessName;
@@ -28,12 +31,50 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     addressController.text = widget.property!.address!;
     cityController.text = widget.property!.city!;
     zipCodeController.text = widget.property!.zipCode!;
+    propertyNameController.text = widget.property!.propertyName!;
     contactNumberController.text = widget.property!.contactNumber!;
     contactPersonController.text = widget.property!.contactPerson!;
-    //
-    statusDropDown = widget.property!.statusActive! ? 'Active' : 'InActive';
+    statusDropDown = widget.property!.propertyStatus;
     businessName = widget.property!.businessName;
     state = widget.property!.state;
+  }
+
+  updateProperty() {
+    if (statusDropDown == null) {
+      Fluttertoast.showToast(msg: 'Please Select Property Status');
+      return;
+    }
+
+    if (businessName == null) {
+      Fluttertoast.showToast(msg: 'Please Select Business Name');
+      return;
+    }
+
+    if (propertyNameController.text.isEmpty) {
+      Fluttertoast.showToast(msg: 'Please Enter Property Name');
+      return;
+    }
+
+    if (state == null) {
+      Fluttertoast.showToast(msg: 'Please Select State');
+      return;
+    }
+
+    FirebaseFirestore.instance
+        .collection('properties')
+        .doc(widget.property!.id)
+        .update({
+      'status': statusDropDown,
+      'businessName': businessName,
+      'propertyName': propertyNameController.text,
+      'address': addressController.text,
+      'city': cityController.text,
+      'state': state,
+      'zipCode': zipCodeController.text,
+      'contactNo': contactNumberController.text,
+      'contactPerson': contactPersonController.text,
+    });
+    Navigator.pop(context);
   }
 
   @override
@@ -62,14 +103,15 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'Status',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
@@ -82,7 +124,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                       ),
                       isExpanded: true,
                       iconSize: 30.0,
-                      items: ['Active', 'InActive'].map(
+                      items: ['Active', 'Non Active'].map(
                         (val) {
                           return DropdownMenuItem<String>(
                             value: val,
@@ -108,14 +150,15 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'Business Name',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
@@ -134,7 +177,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                         'RNC Data',
                         'Bhall LLC',
                         'Talco House',
-                        'Synergy Care',
                       ].map(
                         (val) {
                           return DropdownMenuItem<String>(
@@ -161,27 +203,27 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'Property Name',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                       child: TextFormField(
-                        decoration: InputDecoration(
+                        controller: propertyNameController,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(0),
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Name';
-                          }
-                          return null;
-                        },
+                        onChanged: (v) {},
                       ),
                     ),
                   ),
@@ -194,14 +236,16 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'Address',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
@@ -229,14 +273,16 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'City',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
@@ -263,14 +309,15 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'State',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
                     ),
                     child: DropdownButtonFormField(
                       decoration: InputDecoration(
@@ -279,13 +326,10 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                             top: 10.0, bottom: 10.0, left: 20, right: 10),
                         focusColor: Theme.of(context).primaryColor,
                         hintText: state == null ? 'State' : state!,
-                        hintStyle: TextStyle(
-                          color: Colors.black,
-                        ),
                       ),
                       isExpanded: true,
                       iconSize: 30.0,
-                      items: ['AL', 'AK', 'AZ', 'TX'].map(
+                      items: ['AL', 'AK', 'AZ'].map(
                         (val) {
                           return DropdownMenuItem<String>(
                             value: val,
@@ -311,14 +355,16 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'Zip Code',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
@@ -346,14 +392,16 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'Contact No',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
@@ -381,14 +429,16 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   Text(
                     'Contact Person',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: TextFormField(
@@ -411,9 +461,9 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               ),
               SizedBox(height: 25),
               AppButton(
-                title: 'Update',
+                title: 'Add',
                 onTap: () {
-                  Navigator.pop(context);
+                  updateProperty();
                 },
               ),
               SizedBox(height: 25),

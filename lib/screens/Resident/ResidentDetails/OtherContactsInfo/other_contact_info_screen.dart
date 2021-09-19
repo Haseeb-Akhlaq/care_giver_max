@@ -1,10 +1,13 @@
-import 'package:caregiver_max/styles/colors.dart';
+import 'package:caregiver_max/Models/Resident/resident.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class OtherContactInfoScreen extends StatefulWidget {
-  const OtherContactInfoScreen({Key? key}) : super(key: key);
+  final Resident? resident;
+  const OtherContactInfoScreen({Key? key, this.resident}) : super(key: key);
 
   @override
   State<OtherContactInfoScreen> createState() => _OtherContactInfoScreenState();
@@ -13,11 +16,80 @@ class OtherContactInfoScreen extends StatefulWidget {
 class _OtherContactInfoScreenState extends State<OtherContactInfoScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String? propertyDropDownName;
-  String? state;
+  TextEditingController responsiblePartyController = TextEditingController();
+  TextEditingController relationShipController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController telephoneController = TextEditingController();
 
-  //
-  String? admissionDate = '';
+////
+  TextEditingController powerOfAttorneyController = TextEditingController();
+  TextEditingController attorneyRelationshipController =
+      TextEditingController();
+  TextEditingController powerOfAttorneyAddressController =
+      TextEditingController();
+  TextEditingController powerOfAttorneyTelephoneController =
+      TextEditingController();
+  ////
+
+  TextEditingController notifyInCaseOfEmergencyController =
+      TextEditingController();
+  TextEditingController emergencyRelationshipController =
+      TextEditingController();
+  TextEditingController emergencyAddressController = TextEditingController();
+  TextEditingController emergencyTelephoneController = TextEditingController();
+
+  updateOthersContactInfo() {
+    FirebaseFirestore.instance
+        .collection('residents')
+        .doc(widget.resident!.id)
+        .update({
+      'responsibleParty': responsiblePartyController.text,
+      'responsiblePartyRelationship': relationShipController.text,
+      'responsiblePartyAddress': addressController.text,
+      'responsiblePartyTelephone': telephoneController.text,
+      'powerOfAttorney': powerOfAttorneyController.text,
+      'powerOfAttorneyRelationship': attorneyRelationshipController.text,
+      'powerOfAttorneyAddress': powerOfAttorneyAddressController.text,
+      'powerOfAttorneyTelephone': powerOfAttorneyTelephoneController.text,
+      'inCaseOfEmergency': notifyInCaseOfEmergencyController.text,
+      'inCaseOfEmergencyRelationship': emergencyRelationshipController.text,
+      'inCaseOfEmergencyAddress': emergencyAddressController.text,
+      'inCaseOfEmergencyTelephone': emergencyTelephoneController.text,
+    });
+
+    Navigator.pop(context);
+  }
+
+  setInitialValues() {
+    responsiblePartyController.text = widget.resident!.responsibleParty!;
+    relationShipController.text =
+        widget.resident!.responsiblePartyRelationship!;
+    addressController.text = widget.resident!.responsiblePartyAddress!;
+    telephoneController.text = widget.resident!.responsiblePartyTelephone!;
+
+    powerOfAttorneyController.text = widget.resident!.powerOfAttorney!;
+    attorneyRelationshipController.text =
+        widget.resident!.powerOfAttorneyRelationship!;
+    powerOfAttorneyAddressController.text =
+        widget.resident!.powerOfAttorneyAddress!;
+    powerOfAttorneyTelephoneController.text =
+        widget.resident!.powerOfAttorneyTelephone!;
+
+    notifyInCaseOfEmergencyController.text =
+        widget.resident!.inCaseOfEmergency!;
+    emergencyRelationshipController.text =
+        widget.resident!.inCaseOfEmergencyRelationship!;
+    emergencyAddressController.text =
+        widget.resident!.inCaseOfEmergencyAddress!;
+    emergencyTelephoneController.text =
+        widget.resident!.inCaseOfEmergencyTelephone!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setInitialValues();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,27 +112,25 @@ class _OtherContactInfoScreenState extends State<OtherContactInfoScreen> {
                   Text(
                     'Responsible Party',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: responsiblePartyController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Responsible Party Name';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -74,27 +144,25 @@ class _OtherContactInfoScreenState extends State<OtherContactInfoScreen> {
                   Text(
                     'RelationShip',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: relationShipController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter RelationShip Name';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -108,28 +176,26 @@ class _OtherContactInfoScreenState extends State<OtherContactInfoScreen> {
                   Text(
                     'Address',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: addressController,
+                        maxLines: 3,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        maxLines: 3,
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Address';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -143,408 +209,335 @@ class _OtherContactInfoScreenState extends State<OtherContactInfoScreen> {
                   Text(
                     'Telephone',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: telephoneController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Telephone Number';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
                 ],
               ),
 
+              SizedBox(height: 35),
+              Row(
+                children: [
+                  Text(
+                    'Power Of Attorney',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 35),
+              ////////////////////////////////////////////Power Of Attorney
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Power Of Attorney',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                      child: TextFormField(
+                        controller: powerOfAttorneyController,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: 25),
-
-              PowerOfAttorneyExpansionTile(),
+              ////////////////////////////////////////////RelationShip
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'RelationShip',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                      child: TextFormField(
+                        controller: attorneyRelationshipController,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: 25),
-              InCaseOfEmergencyExpansionTile(),
+              ////////////////////////////////////////////Address
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Address',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                      child: TextFormField(
+                        controller: powerOfAttorneyAddressController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 25),
+              ////////////////////////////////////////////Telephone
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Telephone',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                      child: TextFormField(
+                        controller: attorneyRelationshipController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 25),
+              Row(
+                children: [
+                  Text(
+                    'In Case Of Emergency',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 25),
+              Container(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ////////////////////////////////////////////Notify in case of Emergency
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Notify in case of Emergency',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 2),
+                            child: TextFormField(
+                              controller: notifyInCaseOfEmergencyController,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 25),
+                    ////////////////////////////////////////////RelationShip
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'RelationShip',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 2),
+                            child: TextFormField(
+                              controller: emergencyRelationshipController,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 25),
+                    ////////////////////////////////////////////Address
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Address',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 2),
+                            child: TextFormField(
+                              controller: emergencyAddressController,
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 25),
+                    ////////////////////////////////////////////Telephone
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Telephone',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 2),
+                            child: TextFormField(
+                              controller: emergencyTelephoneController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(height: 50),
               AppButton(
                 title: 'Update',
                 onTap: () {
-                  Navigator.pop(context);
+                  updateOthersContactInfo();
                 },
               ),
               SizedBox(height: 25),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class PowerOfAttorneyExpansionTile extends StatefulWidget {
-  const PowerOfAttorneyExpansionTile({Key? key}) : super(key: key);
-
-  @override
-  _PowerOfAttorneyExpansionTileState createState() =>
-      _PowerOfAttorneyExpansionTileState();
-}
-
-class _PowerOfAttorneyExpansionTileState
-    extends State<PowerOfAttorneyExpansionTile> {
-  TextEditingController religionController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'Power Of Attorney',
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ////////////////////////////////////////////Power Of Attorney
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Power Of Attorney',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Power Of Attorney Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////RelationShip
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'RelationShip',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter RelationShip Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Address
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Address',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class InCaseOfEmergencyExpansionTile extends StatefulWidget {
-  const InCaseOfEmergencyExpansionTile({Key? key}) : super(key: key);
-
-  @override
-  _InCaseOfEmergencyExpansionTileState createState() =>
-      _InCaseOfEmergencyExpansionTileState();
-}
-
-class _InCaseOfEmergencyExpansionTileState
-    extends State<InCaseOfEmergencyExpansionTile> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
-      ),
-      child: ExpansionTile(
-        title: Text(
-          'In Case Of Emergency',
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(14),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ////////////////////////////////////////////Notify in case of Emergency
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Notify in case of Emergency',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Notify in case of Emergency Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////RelationShip
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'RelationShip',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter RelationShip Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Address
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Address',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Address';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Telephone
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Telephone',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          )
-        ],
       ),
     );
   }

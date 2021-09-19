@@ -1,9 +1,35 @@
+import 'package:caregiver_max/Models/Resident/resident.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
 import 'package:caregiver_max/widgets/drawer.dart';
 import 'package:caregiver_max/widgets/simple_appBar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:nanoid/async.dart';
+
+class ResidentGuardian {
+  String? id;
+  String? name;
+  String? relationShip;
+  String? address;
+  String? telephone;
+
+  ResidentGuardian(
+      {this.id, this.telephone, this.address, this.name, this.relationShip});
+
+  ResidentGuardian.fromMap(Map<dynamic, dynamic> map) {
+    this.id = map['id'];
+    this.name = map['name'];
+    this.relationShip = map['relationShip'];
+    this.address = map['address'];
+    this.telephone = map['telephone'];
+  }
+}
 
 class NearestRelativeGuardianScreen extends StatefulWidget {
+  final Resident? resident;
+  const NearestRelativeGuardianScreen({Key? key, this.resident})
+      : super(key: key);
+
   @override
   State<NearestRelativeGuardianScreen> createState() =>
       _NearestRelativeGuardianScreenState();
@@ -12,6 +38,66 @@ class NearestRelativeGuardianScreen extends StatefulWidget {
 class _NearestRelativeGuardianScreenState
     extends State<NearestRelativeGuardianScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  List<ResidentGuardian> allGuardians = [];
+  bool isLoading = false;
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController relationShipController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController telephoneController = TextEditingController();
+
+  addNearestGuardian() async {
+    String id = await customAlphabet('1234567890', 10);
+
+    await FirebaseFirestore.instance
+        .collection('Resident-Guardians')
+        .doc(widget.resident!.id)
+        .collection('guardians')
+        .doc(id)
+        .set({
+      'id': id,
+      'name': nameController.text,
+      'relationShip': relationShipController.text,
+      'address': addressController.text,
+      'telephone': telephoneController.text,
+    });
+
+    nameController.text = '';
+    relationShipController.text = '';
+    addressController.text = '';
+    telephoneController.text = '';
+
+    getAllGuardians();
+  }
+
+  getAllGuardians() async {
+    allGuardians = [];
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final guardians = await FirebaseFirestore.instance
+        .collection('Resident-Guardians')
+        .doc(widget.resident!.id)
+        .collection('guardians')
+        .get();
+
+    guardians.docs.forEach((element) {
+      allGuardians.add(ResidentGuardian.fromMap(element.data()));
+    });
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAllGuardians();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,27 +123,25 @@ class _NearestRelativeGuardianScreenState
                   Text(
                     'Name',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: nameController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Name';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -71,28 +155,25 @@ class _NearestRelativeGuardianScreenState
                   Text(
                     'Relationship',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
-                        maxLines: null,
+                        controller: relationShipController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Relationship';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -106,28 +187,26 @@ class _NearestRelativeGuardianScreenState
                   Text(
                     'Address',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
+                        controller: addressController,
                         maxLines: 3,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Observation / Comment';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -139,30 +218,28 @@ class _NearestRelativeGuardianScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Phone',
+                    'Telephone',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5)),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey),
+                    ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                       child: TextFormField(
-                        maxLines: null,
+                        controller: telephoneController,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: InputBorder.none,
                         ),
-                        onSaved: (v) {},
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please Enter Phone';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -172,190 +249,133 @@ class _NearestRelativeGuardianScreenState
               AppButton(
                 title: 'Add',
                 onTap: () {
-                  Navigator.pop(context);
+                  addNearestGuardian();
                 },
               ),
               SizedBox(height: 25),
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Container(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Name :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                'Keisha Ford',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 15),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Relationship :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                'Daughter',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 15),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Address :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '1922 Hammerwood Drive',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 15),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Telephone :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 25),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Icon(Icons.edit, color: Colors.blue),
-                            Icon(Icons.delete, color: Colors.red),
-                          ],
-                        )
-                      ],
+              isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Column(
+                      children: allGuardians
+                          .map((e) => GuardianCard(
+                                residentGuardian: e,
+                                residentId: widget.resident!.id,
+                                getGuardians: getAllGuardians,
+                              ))
+                          .toList()),
+              SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GuardianCard extends StatelessWidget {
+  final ResidentGuardian? residentGuardian;
+  final String? residentId;
+  final Function? getGuardians;
+  const GuardianCard(
+      {Key? key, this.residentGuardian, this.residentId, this.getGuardians})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Name :  ',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Expanded(
+                    child: Text(
+                      residentGuardian!.name!,
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
-                ),
+                ],
               ),
-              SizedBox(height: 10),
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Container(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Name :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                'Keisha Ford',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 15),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Relationship :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                'Daughter',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 15),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Address :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '1922 Hammerwood Drive',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 15),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Telephone :  ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '33357575',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 25),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Icon(Icons.edit, color: Colors.blue),
-                            Icon(Icons.delete, color: Colors.red),
-                          ],
-                        )
-                      ],
+              SizedBox(height: 15),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Relationship :  ',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Expanded(
+                    child: Text(
+                      residentGuardian!.relationShip!,
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
-                ),
+                ],
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Address :  ',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Expanded(
+                    child: Text(
+                      residentGuardian!.address!,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 15),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Telephone :  ',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Expanded(
+                    child: Text(
+                      residentGuardian!.telephone!,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Icon(Icons.edit, color: Colors.blue),
+                  GestureDetector(
+                    onTap: () async {
+                      await FirebaseFirestore.instance
+                          .collection('Resident-Guardians')
+                          .doc(residentId)
+                          .collection('guardians')
+                          .doc(residentGuardian!.id)
+                          .delete();
+
+                      getGuardians!();
+                    },
+                    child: Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
+              )
             ],
           ),
         ),

@@ -1,13 +1,20 @@
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:caregiver_max/Models/property.dart';
+import 'package:caregiver_max/screens/User/Provider/add_user_provider.dart';
 import 'package:caregiver_max/styles/colors.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
 import 'package:caregiver_max/widgets/error_snackBar.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import 'Model/care_giver_user.dart';
 
 class AddUserScreen extends StatefulWidget {
   const AddUserScreen({Key? key}) : super(key: key);
@@ -18,6 +25,12 @@ class AddUserScreen extends StatefulWidget {
 
 class _AddUserScreenState extends State<AddUserScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<AddNewUserProvider>(context, listen: false).initializeUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +57,34 @@ class _AddUserScreenState extends State<AddUserScreen> {
               AppButton(
                 title: 'Add',
                 onTap: () {
+                  final CareGiverUser initialedUser =
+                      Provider.of<AddNewUserProvider>(context, listen: false)
+                          .getUser();
+
+                  if (initialedUser.firstName == '') {
+                    Fluttertoast.showToast(msg: 'Please Enter First Name');
+                    return;
+                  }
+
+                  if (initialedUser.lastName == '') {
+                    Fluttertoast.showToast(msg: 'Please Enter Last Name');
+                    return;
+                  }
+                  if (initialedUser.initial == '') {
+                    Fluttertoast.showToast(msg: 'Please Enter Initial');
+                    return;
+                  }
+                  if (initialedUser.propertiesIds!.isEmpty) {
+                    Fluttertoast.showToast(msg: 'Please Select the Property');
+                    return;
+                  }
+                  if (initialedUser.roles!.isEmpty) {
+                    Fluttertoast.showToast(
+                        msg: 'Please Select Any Role For User');
+                    return;
+                  }
+                  Provider.of<AddNewUserProvider>(context, listen: false)
+                      .upLoadUserToFirebase();
                   Navigator.pop(context);
                 },
               ),
@@ -64,18 +105,33 @@ class DetailsExpansionTile extends StatefulWidget {
 }
 
 class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
+  void sendMoney() {}
+
   TextEditingController religionController = TextEditingController();
 
   String? hireDate = '';
   String? dateOfBirth = '';
   String? employeeStatusDropDown;
 
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController secondNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+
+  TextEditingController initialController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+
+  TextEditingController cellPhoneController = TextEditingController();
+  TextEditingController homePhoneController = TextEditingController();
+  TextEditingController workPhoneController = TextEditingController();
+
+  TextEditingController sslController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
+        color: AppColors.mainGrey.withOpacity(0.3),
       ),
       child: ExpansionTile(
         title: Text(
@@ -99,34 +155,37 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'First Name *',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
-                          controller: religionController,
-                          decoration: InputDecoration(
+                          controller: firstNameController,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter First Name';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setFirstName(v);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////Middle Name
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,27 +193,30 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'Middle Name',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
-                          controller: religionController,
-                          decoration: InputDecoration(
+                          controller: secondNameController,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Middle Name';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setMiddleName(v);
                           },
                         ),
                       ),
@@ -162,7 +224,7 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                   ],
                 ),
 
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////Last Name
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,34 +232,37 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'Last Name *',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
-                          controller: religionController,
-                          decoration: InputDecoration(
+                          controller: lastNameController,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Last Name';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setLastName(v);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////Initial
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,203 +270,68 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'Initial *',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
-                          controller: religionController,
-                          decoration: InputDecoration(
+                          controller: initialController,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Initial';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setInitial(v);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Login Name
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Login Name *',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          controller: religionController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Last Name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Password
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Password *',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          obscureText: true,
-                          controller: religionController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Password';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Confirm Password
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Confirm Password *',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          obscureText: true,
-                          controller: religionController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Confirm Password';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Email
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Email',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Email';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 25),
-                ////////////////////////////////////////////Address
+                SizedBox(height: 15),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Address',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
-                          decoration: InputDecoration(
+                          controller: addressController,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
                           maxLines: 3,
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Address';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setAddress(v);
                           },
                         ),
                       ),
@@ -409,7 +339,7 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                   ],
                 ),
 
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////Cellphone
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,34 +347,38 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'CellPhone',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
+                          controller: cellPhoneController,
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setCellphoneNumber(v);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////HomePhone
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -452,34 +386,38 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'HomePhone',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
+                          controller: homePhoneController,
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter HomePhone Number';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setHomePhoneNumber(v);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////WorkPhone
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -487,34 +425,38 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'WorkPhone',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
+                          controller: workPhoneController,
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setHomePhoneNumber(v);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////Hire Date
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,7 +464,8 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'Hire Date',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
@@ -535,6 +478,9 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                                 DateTime.now().subtract(Duration(days: 10)),
                             lastDate: DateTime.now().add(Duration(days: 60)));
 
+                        Provider.of<AddNewUserProvider>(context, listen: false)
+                            .setHireDate(date.toString());
+
                         setState(() {
                           hireDate = DateFormat.yMd().format(date!);
                         });
@@ -542,8 +488,9 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(5)),
+                          borderRadius: BorderRadius.circular(2),
+                          border: Border.all(color: Colors.grey),
+                        ),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 20, vertical: 15),
@@ -553,7 +500,7 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////SSL
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,34 +508,37 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'SSL',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(5)),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
+                          controller: sslController,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(0),
                             border: InputBorder.none,
                           ),
-                          onSaved: (v) {},
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter Telephone Number';
-                            }
-                            return null;
+                          onChanged: (v) {
+                            Provider.of<AddNewUserProvider>(context,
+                                    listen: false)
+                                .setSSl(v);
                           },
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ////////////////////////////////////////////Date Of Birth
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,7 +546,8 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'Date Of Birth',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
@@ -609,6 +560,9 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                                 DateTime.now().subtract(Duration(days: 10)),
                             lastDate: DateTime.now().add(Duration(days: 60)));
 
+                        Provider.of<AddNewUserProvider>(context, listen: false)
+                            .setDateOfBirth(date.toString());
+
                         setState(() {
                           dateOfBirth = DateFormat.yMd().format(date!);
                         });
@@ -616,8 +570,9 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(5)),
+                          borderRadius: BorderRadius.circular(2),
+                          border: Border.all(color: Colors.grey),
+                        ),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 20, vertical: 15),
@@ -627,7 +582,7 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     ),
                   ],
                 ),
-                SizedBox(height: 25),
+                SizedBox(height: 15),
                 ///////////////////////////////////////////Employee Status
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -635,14 +590,15 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                     Text(
                       'Employee Status',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.grey.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
                       ),
                       child: DropdownButtonFormField(
                         decoration: InputDecoration(
@@ -670,13 +626,16 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
                               employeeStatusDropDown = val.toString();
                             },
                           );
+                          Provider.of<AddNewUserProvider>(context,
+                                  listen: false)
+                              .setEmployeeStatus(employeeStatusDropDown);
                         },
                       ),
                     ),
                   ],
                 ),
 
-                SizedBox(height: 25),
+                SizedBox(height: 15),
               ],
             ),
           )
@@ -686,13 +645,54 @@ class _DetailsExpansionTileState extends State<DetailsExpansionTile> {
   }
 }
 
-class PropertyExpansionTile extends StatelessWidget {
+class PropertyExpansionTile extends StatefulWidget {
+  @override
+  State<PropertyExpansionTile> createState() => _PropertyExpansionTileState();
+}
+
+class _PropertyExpansionTileState extends State<PropertyExpansionTile> {
+  List<bool> selectedProperties = [];
+  final List<Property> properties = [
+    Property(
+        id: '11',
+        address: 'kp',
+        businessName: '8610 Quail Vista',
+        city: 'dha',
+        contactNumber: '32332',
+        contactPerson: 'ALI',
+        propertyName: 'okk',
+        propertyStatus: 'Active',
+        zipCode: '22',
+        state: 'ban'),
+    Property(
+        id: '15',
+        address: 'kp',
+        businessName: '80 wqdVista',
+        city: 'dhaff',
+        contactNumber: '323323',
+        contactPerson: 'ahmed',
+        propertyName: 'okk',
+        propertyStatus: 'Active',
+        zipCode: '322',
+        state: 'ban'),
+  ];
+
+  generateParallelBoolList() {
+    selectedProperties = List.generate(properties.length, (index) => false);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    generateParallelBoolList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
+        color: AppColors.mainGrey.withOpacity(0.3),
       ),
       child: ExpansionTile(
         title: Text(
@@ -703,31 +703,67 @@ class PropertyExpansionTile extends StatelessWidget {
           ),
         ),
         children: <Widget>[
-          Row(
-            children: [
-              Checkbox(value: false, onChanged: (v) {}),
-              Text('1405 Adams St'),
-            ],
+          ...properties.map(
+            (e) => Row(
+              children: [
+                Checkbox(
+                    value: selectedProperties[properties.indexOf(e)],
+                    onChanged: (v) {
+                      setState(() {
+                        selectedProperties[properties.indexOf(e)] =
+                            !selectedProperties[properties.indexOf(e)];
+                      });
+
+                      if (v == true) {
+                        Provider.of<AddNewUserProvider>(context, listen: false)
+                            .addProperties(e.id!);
+                      } else {
+                        Provider.of<AddNewUserProvider>(context, listen: false)
+                            .removeProperties(e.id!);
+                      }
+                    }),
+                Text(e.businessName!),
+              ],
+            ),
           ),
-          Row(
-            children: [
-              Checkbox(value: false, onChanged: (v) {}),
-              Text('8610 Quail Vista'),
-            ],
-          )
         ],
       ),
     );
   }
 }
 
-class RoleExpansionTile extends StatelessWidget {
+class RoleExpansionTile extends StatefulWidget {
+  @override
+  State<RoleExpansionTile> createState() => _RoleExpansionTileState();
+}
+
+class _RoleExpansionTileState extends State<RoleExpansionTile> {
+  List<bool> selectedRoles = [];
+
+  final List roles = [
+    'Care giver',
+    'Doctor',
+    'Office Admin',
+    'Pharmacist',
+    'Nurse',
+  ];
+
+  generateParallelBoolList() {
+    selectedRoles = List.generate(roles.length, (index) => false);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    generateParallelBoolList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
+        color: AppColors.mainGrey.withOpacity(0.3),
       ),
       child: ExpansionTile(
         title: Text(
@@ -738,35 +774,28 @@ class RoleExpansionTile extends StatelessWidget {
           ),
         ),
         children: <Widget>[
-          Row(
-            children: [
-              Checkbox(value: false, onChanged: (v) {}),
-              Text('Care giver'),
-            ],
-          ),
-          Row(
-            children: [
-              Checkbox(value: false, onChanged: (v) {}),
-              Text('Doctor'),
-            ],
-          ),
-          Row(
-            children: [
-              Checkbox(value: false, onChanged: (v) {}),
-              Text('Office Admin'),
-            ],
-          ),
-          Row(
-            children: [
-              Checkbox(value: false, onChanged: (v) {}),
-              Text('Pharmacist'),
-            ],
-          ),
-          Row(
-            children: [
-              Checkbox(value: false, onChanged: (v) {}),
-              Text('Nurse'),
-            ],
+          ...roles.map(
+            (e) => Row(
+              children: [
+                Checkbox(
+                    value: selectedRoles[roles.indexOf(e)],
+                    onChanged: (v) {
+                      setState(() {
+                        selectedRoles[roles.indexOf(e)] =
+                            !selectedRoles[roles.indexOf(e)];
+                      });
+
+                      if (v == true) {
+                        Provider.of<AddNewUserProvider>(context, listen: false)
+                            .addUserRole(e);
+                      } else {
+                        Provider.of<AddNewUserProvider>(context, listen: false)
+                            .removeUserRole(e);
+                      }
+                    }),
+                Text(e),
+              ],
+            ),
           ),
         ],
       ),
@@ -782,19 +811,59 @@ class DocumentUploadExpansionTile extends StatefulWidget {
 
 class _DocumentUploadExpansionTileState
     extends State<DocumentUploadExpansionTile> {
+  bool isLoading = false;
   File? file;
-
   FilePickerResult? result;
 
-  pickFile() async {
+  pickFile(BuildContext context) async {
     result = await FilePicker.platform.pickFiles();
 
-    if (result != null) {
-      setState(() {
+    print(result);
+
+    try {
+      if (result != null) {
         file = File(result!.files.single.path);
+
+        print('working');
+
+        setState(() {
+          isLoading = true;
+        });
+
+        final firebaseStorageRef = FirebaseStorage.instance
+            .ref()
+            .child('userDocuments/${result!.files.single.path}');
+
+        print('working2');
+
+        final uploadTask = firebaseStorageRef.putFile(file!);
+
+        final taskSnapshot =
+            await uploadTask.whenComplete(() => print('Document uploaded'));
+
+        taskSnapshot.ref.getDownloadURL().then(
+          (value) {
+            setState(() {
+              print("Done: $value");
+              file = File(result!.files.single.path);
+            });
+            Provider.of<AddNewUserProvider>(context, listen: false)
+                .setDocumentLink(value);
+            Provider.of<AddNewUserProvider>(context, listen: false)
+                .setDocumentName(result!.files.single.path);
+            isLoading = false;
+          },
+        );
+      } else {
+        showErrorSnackBar(context, 'User cancelled the picker');
+      }
+    } catch (e) {
+      print('error occureed------------------------');
+      print(e);
+    } finally {
+      setState(() {
+        isLoading = false;
       });
-    } else {
-      showErrorSnackBar(context, 'User cancelled the picker');
     }
   }
 
@@ -803,7 +872,7 @@ class _DocumentUploadExpansionTileState
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        color: AppColors.mainGrey,
+        color: AppColors.mainGrey.withOpacity(0.3),
       ),
       child: ExpansionTile(
         title: Text(
@@ -820,42 +889,47 @@ class _DocumentUploadExpansionTileState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Select File',
+                  'Choose File *',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 25),
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.black,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        TextButton.icon(
-                          onPressed: () {
-                            pickFile();
-                          },
-                          icon: Icon(Icons.upload_file),
-                          label: Text('Choose File:  '),
+                isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
+                          ),
                         ),
-                        SizedBox(height: 10),
-                        AutoSizeText(
-                          file == null
-                              ? 'No file Chosen'
-                              : '${result!.files.first.name}',
-                          maxLines: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            children: [
+                              TextButton.icon(
+                                onPressed: () {
+                                  pickFile(context);
+                                },
+                                icon: Icon(Icons.upload_file),
+                                label: Text('Choose File:  '),
+                              ),
+                              SizedBox(height: 10),
+                              AutoSizeText(
+                                file == null
+                                    ? 'No file Chosen'
+                                    : '${result!.files.first.name}',
+                                maxLines: 1,
+                              ),
+                              SizedBox(height: 10),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 10),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
               ],
             ),
           ),
