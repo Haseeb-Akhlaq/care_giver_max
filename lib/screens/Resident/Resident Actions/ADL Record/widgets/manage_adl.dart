@@ -6,6 +6,7 @@ import 'package:caregiver_max/styles/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ManageDailyAdlExpansionTile extends StatefulWidget {
@@ -62,7 +63,8 @@ class _ManageDailyAdlExpansionTileState
     print(allSavedAdlRecords.length);
 
     allSavedAdlRecords.forEach((element) {
-      savedRecordList.add(element.time);
+      savedRecordList
+          .add(DateFormat.yMd().format(DateTime.parse(element.time!)));
     });
 
     print(savedRecordList.length);

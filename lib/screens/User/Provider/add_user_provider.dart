@@ -1,5 +1,6 @@
 import 'package:caregiver_max/screens/User/Model/care_giver_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nanoid/async.dart';
 
@@ -111,7 +112,10 @@ class AddNewUserProvider extends ChangeNotifier {
   upLoadUserToFirebase() async {
     String id = await customAlphabet('1234567890', 10);
 
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+
     FirebaseFirestore.instance.collection('careGiverUsers').doc(id).set({
+      'addedBy': userId,
       'id': id,
       'firstName': careGiverUser!.firstName,
       'middleName': careGiverUser!.middleName,
