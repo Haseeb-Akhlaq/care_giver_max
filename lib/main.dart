@@ -1,5 +1,6 @@
-import 'package:caregiver_max/screens/Resident/Resident%20Actions/ADL%20Record/Provider/provider.dart';
-import 'package:caregiver_max/screens/User/Provider/add_user_provider.dart';
+import 'package:caregiver_max/providers/auth_provider.dart';
+import 'package:caregiver_max/screens/Main%20User/Resident/Resident%20Actions/ADL%20Record/Provider/provider.dart';
+import 'package:caregiver_max/screens/Main%20User/User/Provider/add_user_provider.dart';
 import 'package:caregiver_max/screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
+          ChangeNotifierProvider(
+            create: (ctx) => AuthProvider(),
+          ),
           ChangeNotifierProvider(
             create: (ctx) => AddNewUserProvider(),
           ),

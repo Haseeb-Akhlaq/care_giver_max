@@ -1,7 +1,8 @@
 class Resident {
   String? id;
   String? status;
-  String? property;
+  String? propertyName;
+  String? propertyId;
   String? residentName;
   String? admissionDate;
   String? primaryLanguage;
@@ -76,7 +77,8 @@ class Resident {
   Resident({
     this.id,
     this.residentName,
-    this.property,
+    this.propertyName,
+    this.propertyId,
     this.age,
     this.sex,
     this.admissionDate,
@@ -143,7 +145,8 @@ class Resident {
   Resident.fromMap(Map<dynamic, dynamic> map) {
     this.id = map['id'];
     this.residentName = map['name'];
-    this.property = map['property'];
+    this.propertyName = map['propertyName'];
+    this.propertyId = map['propertyId'];
     this.age = map['age'];
     this.sex = map['sex'];
     this.admissionDate = map['admissionDate'];

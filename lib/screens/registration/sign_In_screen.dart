@@ -1,3 +1,6 @@
+import 'package:caregiver_max/providers/auth_provider.dart';
+import 'package:caregiver_max/screens/Main%20User/User/Model/care_giver_user.dart';
+import 'package:caregiver_max/screens/Sub_User/sub_user_home_screen.dart';
 import 'package:caregiver_max/styles/colors.dart';
 import 'package:caregiver_max/widgets/error_snackBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +9,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../landing_screen.dart';
 
@@ -63,6 +68,11 @@ class _SignInFormState extends State<SignInForm> {
   String? password = '';
   bool isLoading = false;
 
+  SharedPreferences? sharedPreferences;
+
+  //CHECKING IF EMAIL BELONGS TO SUBUSER THEN LOGIN AS SUBUSER OR LOGIN AS
+  //MAIN USER BY USING FIREBASE AUTH.
+
   login() async {
     bool isValid = _formKey.currentState!.validate();
 
@@ -70,6 +80,43 @@ class _SignInFormState extends State<SignInForm> {
       return;
     }
 
+    _formKey.currentState!.save();
+    email = email.toString().trim();
+
+    sharedPreferences = await SharedPreferences.getInstance();
+
+    print('user here');
+    print(email);
+
+    final caregiverUser = await FirebaseFirestore.instance
+        .collection('careGiverUsers')
+        .where('email', isEqualTo: email)
+        .get();
+
+    print(caregiverUser.docs);
+
+    if (caregiverUser.docs.isNotEmpty) {
+      if (caregiverUser.docs[0].data()['email'] == email &&
+          caregiverUser.docs[0].data()['password'] == password) {
+        CareGiverUser loggedInUser =
+            CareGiverUser.fromMap(caregiverUser.docs[0].data());
+
+        sharedPreferences!.setBool('loggedIn', true);
+        sharedPreferences!.setString('loggedUserId', loggedInUser.id!);
+
+        Provider.of<AuthProvider>(context, listen: false).setLoggedSubUser();
+
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => SubUserHomeScreen()),
+            (route) => false);
+      }
+    } else {
+      loginWithFirebase();
+    }
+  }
+
+  loginWithFirebase() async {
     try {
       setState(() {
         isLoading = true;
@@ -231,7 +278,6 @@ class _SignInFormState extends State<SignInForm> {
               ),
             ),
             SizedBox(height: 50),
-            GoogleButton(),
           ],
         ),
         Positioned(
