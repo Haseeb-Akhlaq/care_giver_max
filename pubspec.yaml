@@ -33,6 +33,7 @@ dependencies:
   nanoid: ^1.0.0
   shared_preferences: ^2.0.8
   direct_select: ^2.0.0
+  dropdown_search: ^1.0.0
 
 
 dev_dependencies:

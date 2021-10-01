@@ -3,6 +3,7 @@ import 'package:caregiver_max/Models/Resident/resident.dart';
 import 'package:caregiver_max/widgets/app_button.dart';
 import 'package:caregiver_max/widgets/simple_appBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -21,15 +22,10 @@ class _SetupMedicationDetailsScreenState
     extends State<SetupMedicationDetailsScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  List medicationList = [
-    'Generlac sol',
-    'Lotrel',
-    'Bhall LLC',
-    'Talco House',
-  ];
+  List<String> medicationList = ['New Medicine'];
 
   var taskingTime = TimeOfDay(hour: 00, minute: 00);
-  String? medication;
+  String? medication = 'New Medicine';
   String? routeOfAdministration;
   String? statusDropDown;
   String? dateIssued = '';
@@ -38,6 +34,7 @@ class _SetupMedicationDetailsScreenState
   bool controlledMedication = false;
   bool isPrn = false;
 
+  TextEditingController newMedicineController = TextEditingController();
   TextEditingController strengthController = TextEditingController();
   TextEditingController rxController = TextEditingController();
   TextEditingController directionForUseController = TextEditingController();
@@ -50,7 +47,7 @@ class _SetupMedicationDetailsScreenState
       Fluttertoast.showToast(msg: 'Please Select Status');
       return;
     }
-    if (medication == null) {
+    if (medication == 'New Medicine') {
       Fluttertoast.showToast(msg: 'Please Select Medication');
       return;
     }
@@ -96,6 +93,25 @@ class _SetupMedicationDetailsScreenState
     });
 
     Navigator.pop(context);
+  }
+
+  getPreviousMedications() async {
+    final med = await FirebaseFirestore.instance
+        .collection('Residents_medidicines')
+        .doc('1')
+        .get();
+
+    final list = med.data()!['AllMedicines'];
+
+    medicationList = ['New Medicine', ...list];
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getPreviousMedications();
   }
 
   @override
@@ -221,47 +237,50 @@ class _SetupMedicationDetailsScreenState
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Medication',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  DropdownSearch<String>(
+                    mode: Mode.DIALOG,
+                    items: medicationList,
+                    label: "Medication",
+                    hint: "Medicines",
+                    popupItemDisabled: (String s) => s.startsWith('I'),
+                    onChanged: (v) {
+                      setState(() {
+                        medication = v;
+                      });
+                    },
+                    selectedItem: medication,
+                    showSearchBox: true,
                   ),
-                  SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(2),
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    child: DropdownButtonFormField(
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(
-                            top: 10.0, bottom: 10.0, left: 20, right: 10),
-                        focusColor: Theme.of(context).primaryColor,
-                        hintText:
-                            medication == null ? 'New Medicine' : medication!,
+                  if (medication == 'New Medicine')
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey),
                       ),
-                      isExpanded: true,
-                      iconSize: 30.0,
-                      items: medicationList.map(
-                        (val) {
-                          return DropdownMenuItem<String>(
-                            value: val,
-                            child: Text(val),
-                          );
-                        },
-                      ).toList(),
-                      onChanged: (val) {
-                        setState(
-                          () {
-                            medication = val.toString();
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: TextFormField(
+                          controller: newMedicineController,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          ),
+                          onFieldSubmitted: (v) async {
+                            await FirebaseFirestore.instance
+                                .collection('Residents_medidicines')
+                                .doc('1')
+                                .update({
+                              'AllMedicines': FieldValue.arrayUnion([
+                                newMedicineController.text,
+                              ]),
+                            });
+                            medicationList.add(newMedicineController.text);
+                            medication = newMedicineController.text;
+                            newMedicineController.clear();
+                            setState(() {});
                           },
-                        );
-                      },
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
               SizedBox(height: 25),

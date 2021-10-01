@@ -297,6 +297,8 @@ class _AddResidentScreenState extends State<AddResidentScreen> {
                               DateTime.now().subtract(Duration(days: 10)),
                           lastDate: DateTime.now().add(Duration(days: 60)));
 
+                      FocusScope.of(context).requestFocus(FocusNode());
+
                       setState(() {
                         admissionDateDisplay = DateFormat.yMd().format(date!);
                       });
@@ -654,6 +656,8 @@ class _AddResidentScreenState extends State<AddResidentScreen> {
                           initialDate: DateTime.now(),
                           firstDate: DateTime(1900),
                           lastDate: DateTime(2030));
+
+                      FocusScope.of(context).requestFocus(FocusNode());
 
                       ageController.text =
                           '${((DateTime.now().difference(date!).inDays) / 365).truncate()} yrs';
